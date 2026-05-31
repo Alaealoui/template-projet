@@ -14,10 +14,10 @@ title: Vue d'ensemble du projet
 
 !!! info "Informations générales"
     **Session**: Été 2026  
-    **Auteur(s)**: <!-- Nom de chaque membre (matricule)  -->  
-    **Thème(s)**: <!-- Thèmes principaux abordés dans le projet  -->  
-    **Superviseur(s)**: <!-- Nom du superviseur (affiliation)  -->  
-    **Collaborateur(s):** <!-- Nom de(s) collaborateur(s) et partenaire(s)` -->  
+    **Auteur(s)**: Alaealoui 20253423 
+    **Thème(s)**: Entrepôt de données, Microsoft Fabric, Intégration API 
+    **Superviseur(s)**: Louis-Edouard Lafontant / Ali Kettani
+    **Collaborateur(s):**   
 
 ## Description du projet
 
@@ -25,30 +25,61 @@ title: Vue d'ensemble du projet
 
 ### Contexte
 
-> Présentez le contexte général dans lequel s’inscrit votre projet (social, organisationnel, technologique, éducatif, environnemental, etc.).
+Groupe Neos est une firme de services-conseils spécialisée dans l'analytique et l'intelligence d'affaires. L'équipe accompagne ses clients dans la valorisation de leurs données, la conception de solutions BI, et la mise en œuvre d'architectures de données modernes.
+
+Neos a récemment migré vers Projectworks, un logiciel SaaS dédié à la gestion de projets de consultation. Cette plateforme centralise les informations stratégiques utilisées au quotidien :
+
+- Suivi des budgets clients et de leur consommation dans le temps
+- Facturation des honoraires selon les feuilles de temps des conseillers
+- Suivi de l'avancement des projets et gestion des dépassements budgétaires
+- Mesure du taux d'utilisation des conseillers selon les mandats assignés
+
+L'environnement technologique comprend : Microsoft Fabric, API REST Projectworks, architecture Médaillon (Bronze / Argent / Or), Power BI, SQL et Python.
 
 ### Problématique
 
-> Décrivez le problème central ou la question de recherche que votre projet cherche à adresser, pourquoi s'y intéresser et les faiblesses des solutions actuelles. 
-> Le problème doit pouvoir être compris indépendamment de la solution envisagée.
+Bien que Projectworks offre des rapports prédéfinis, ceux-ci ne peuvent pas être personnalisés et ne répondent pas aux besoins analytiques spécifiques de Groupe Neos.
+
+Il n'existe présentement aucune infrastructure permettant d'exploiter de façon flexible les données contenues dans Projectworks. Cette situation limite la capacité de l'organisation à prendre des décisions éclairées basées sur ses propres données opérationnelles :
+
+- Absence d'un entrepôt de données centralisé pour les données Projectworks
+- Impossibilité de croiser les données opérationnelles librement
+- Dépendance totale aux rapports figés fournis par la plateforme SaaS
 
 ### Proposition et objectifs
 
-> Présentez votre proposition de projet et les objectifs visés. Expliquez en quoi votre approche répond à la problématique identifiée. 
-> Assurez-vous d'avoir, dans la mesure du possible, des objectifs mesurables, raisonnnables dans le temps et non redondants entre eux.
+L'objectif principal est de construire un entrepôt de données alimenté par Projectworks, hébergé dans Microsoft Fabric, servant de fondation à des rapports Power BI entièrement personnalisés.
+
+- Extraire les données des endpoints de l'API REST Projectworks vers la zone Bronze
+- Transformer et standardiser les données vers la zone Argent (Delta Tables)
+- Documenter les pipelines et les choix techniques
+- Modélisation dimensionnelle dans la zone Or
+- Développement de rapports Power BI exploitant les données modélisées
 
 ### Méthodologie
 
-> Expliquez comment vous comptez aborder le projet : démarche générale, grandes étapes prévues, itérations, types de validations envisagées.
+Le projet est structuré en trois grandes étapes séquentielles suivant l'**architecture Médaillon** :
+
+1. **Bronze** : Extraction des données brutes depuis l'API REST Projectworks vers le Lakehouse Microsoft Fabric
+2. **Argent** : Nettoyage, standardisation et application des règles d'affaires
+3. **Or** : Modélisation dimensionnelle pour alimenter des rapports Power BI
+
+Chaque étape est validée avant de passer à la suivante. Les validations incluent des tests manuels, la vérification des métriques d'exécution des pipelines, et des revues régulières avec mon superviseur Ali Kettani.
 
 ### Validation et Évaluation
 
-> Indiquez comment vous évaluerez que votre solution répond aux objectifs du projet (ex. scénarios d’usage, tests, retours utilisateurs, indicateurs qualitatifs ou quantitatifs).
+L'évaluation se fera en vérifiant que l'entrepôt de données permet concrètement à Groupe Neos de répondre à ses besoins analytiques, notamment :
+
+- **Scénarios d'usage** : est-ce qu'on peut calculer le taux d'utilisation des conseillers ? Suivre la consommation budgétaire d'un projet ? Identifier les dépassements ?
+- **Tests de bout en bout** : validation que les données passent correctement de l'API Projectworks → Bronze → Argent sans perte ni altération
+- **Indicateurs quantitatifs** : taux d'erreur des pipelines, nombre de lignes traitées, couverture des endpoints...
+- **Retours du superviseur** : validation que les données transformées correspondent aux règles d'affaires de Groupe Neos et peuvent alimenter des rapports Power BI
 
 
 ## Équipe
 
-> Présentez les membres de l’équipe et le rôle principal de chacun dans le projet.
+- **Alae Aloui** : Stagiaire, conception et développement de l'entrepôt de données
+- **Ali Kettani** : Superviseur de stage, validation des livrables et des choix techniques
 
 ## Échéancier
 
