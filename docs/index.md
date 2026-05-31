@@ -21,8 +21,6 @@ title: Vue d'ensemble du projet
 
 ## Description du projet
 
-> :bulb: N'oubliez pas d'effacer ou mettre en commentaires les notes (`>`) en début de section
-
 ### Contexte
 
 Groupe Neos est une firme de services-conseils spécialisée dans l'analytique et l'intelligence d'affaires. L'équipe accompagne ses clients dans la valorisation de leurs données, la conception de solutions BI, et la mise en œuvre d'architectures de données modernes.
