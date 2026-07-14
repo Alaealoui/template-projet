@@ -462,15 +462,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#semaine-1-1218-janvier" class="md-nav__link">
+  <a href="#semaine-1-1er7-mai-2026" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Semaine 1 (12–18 janvier)
+        Semaine 1 (1er–7 mai 2026)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Semaine 1 (12–18 janvier)">
+    <nav class="md-nav" aria-label="Semaine 1 (1er–7 mai 2026)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -489,28 +489,6 @@
     <span class="md-ellipsis">
       
         Travail réalisé
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#decisions-et-ajustements" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Décisions et ajustements
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#difficultes-rencontrees" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Difficultés rencontrées
       
     </span>
   </a>
@@ -638,15 +616,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#semaine-1-1218-janvier" class="md-nav__link">
+  <a href="#semaine-1-1er7-mai-2026" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Semaine 1 (12–18 janvier)
+        Semaine 1 (1er–7 mai 2026)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Semaine 1 (12–18 janvier)">
+    <nav class="md-nav" aria-label="Semaine 1 (1er–7 mai 2026)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -665,28 +643,6 @@
     <span class="md-ellipsis">
       
         Travail réalisé
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#decisions-et-ajustements" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Décisions et ajustements
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#difficultes-rencontrees" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Difficultés rencontrées
       
     </span>
   </a>
@@ -734,52 +690,254 @@ Les entrées peuvent être hebdomadaires ou bi-hebdomadaires.<br />
 N'oubliez pas d’effacer ou de mettre en commentaires les notes (<code>&gt;</code>) avant la remise finale.</p>
 </blockquote>
 <hr />
-<h2 id="semaine-1-1218-janvier">Semaine 1 (12–18 janvier)<a class="headerlink" href="#semaine-1-1218-janvier" title="Permanent link">&para;</a></h2>
+<h2 id="semaine-1-1er7-mai-2026">Semaine 1 (1er–7 mai 2026)<a class="headerlink" href="#semaine-1-1er7-mai-2026" title="Permanent link">&para;</a></h2>
 <h3 id="objectifs-de-la-periode">Objectifs de la période<a class="headerlink" href="#objectifs-de-la-periode" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Clarifier la problématique</li>
-<li>Explorer les solutions existantes</li>
-<li>Produire un premier prototype conceptuel</li>
+<li>Comprendre le fonctionnement général de l’API REST ProjectWorks</li>
+<li>Identifier les premières données nécessaires au projet</li>
+<li>Vérifier que les données ProjectWorks étaient accessibles</li>
+<li>Comprendre la structure des réponses retournées par l’API</li>
+<li>Mettre en place une première zone de stockage dans Microsoft Fabric</li>
+<li>Développer une première extraction automatisée des données</li>
+<li>Conserver les données brutes dans une couche Bronze</li>
 </ul>
 <h3 id="travail-realise">Travail réalisé<a class="headerlink" href="#travail-realise" title="Permanent link">&para;</a></h3>
 <div class="admonition abstract">
 <p class="admonition-title">Avancement</p>
 <ul class="task-list">
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Analyse de solutions existantes<ul>
-<li>Comparaison de trois outils similaires</li>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Compréhension de l’architecture générale du projet</p>
+<p>Le projet consiste à transférer les données de ProjectWorks vers Microsoft Fabric
+afin qu’elles puissent ensuite être nettoyées, structurées et utilisées pour
+produire des analyses et des rapports.</p>
+<p>Le flux initial mis en place pour la couche Bronze, qui consiste à l’extraction
+des données brutes, est le suivant :</p>
+<p>API REST ProjectWorks -&gt; Notebook Python dans Microsoft Fabric -&gt; Lakehouse Microsoft Fabric -&gt; Couche Bronze contenant les fichiers JSON bruts</p>
+</li>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Prise en main de Microsoft Fabric</p>
+<p>Microsoft Fabric est la plateforme utilisée pour centraliser les données,
+exécuter les traitements et préparer les futures analyses.</p>
+<p>Le développement a d’abord été effectué dans mon propre workspace, avant le
+déploiement dans l’environnement de développement.</p>
+<p>Un workspace est un espace de travail qui regroupe les différents éléments
+du projet, par exemple :</p>
+<ul>
+<li>les notebooks </li>
+<li>les pipelines </li>
+<li>les Lakehouses </li>
+<li>les Warehouses </li>
+<li>les rapports Power BI</li>
 </ul>
 </li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Prototype basse fidélité (Figma)</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Validation utilisateur<ul>
-<li>Reportée à la semaine suivante</li>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Compréhension du rôle du Lakehouse</p>
+<p>Le Lakehouse est l’espace dans lequel les données extraites de ProjectWorks
+sont enregistrées.</p>
+<p>Il combine deux façons de stocker les données :</p>
+<ul>
+<li>une zone de fichiers, semblable à un espace de stockage de fichiers ;</li>
+<li>une zone de tables structurées, qui pourra être utilisée dans les étapes suivantes.</li>
+</ul>
+<p>Pour la couche Bronze, les données ont été enregistrées dans la zone Files
+du Lakehouse.</p>
+<p>La zone Files permet de conserver les données sous leur format d’origine,
+sans les transformer immédiatement en tables.</p>
+<p>À cette étape, les données étaient donc conservées sous forme de fichiers JSON.</p>
+</li>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Définition du rôle de la couche Bronze</p>
+<p>La couche Bronze correspond à la première couche de l’architecture de données.</p>
+<p>Son rôle est de conserver une copie des données reçues depuis la source,
+dans le format exact de la réponse originale de l’API.</p>
+<p>Dans cette couche :</p>
+<ul>
+<li>les colonnes ne sont pas encore renommées </li>
+<li>les types de données ne sont pas encore corrigés </li>
+<li>les valeurs nulles ne sont pas nettoyées </li>
+<li>les objets imbriqués ne sont pas encore séparés </li>
+<li>aucune règle métier n’est appliquée</li>
+</ul>
+<p>Cette approche permet de conserver une copie fidèle des données ProjectWorks
+avant de commencer les transformations.</p>
+<p>En cas d’erreur dans les étapes suivantes, les fichiers Bronze peuvent être
+relus sans devoir rappeler immédiatement l’API.</p>
+</li>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Analyse de l’API REST ProjectWorks</p>
+<p>Une analyse des endpoints a été réalisée dans Postman, en s’appuyant sur la
+documentation officielle de ProjectWorks, afin de déterminer de quels endpoints
+nous aurions besoin pour l’extraction.</p>
+<p>Il fallait donc lire attentivement la documentation, bien la comprendre, savoir
+ce que chaque endpoint retourne, et comprendre la signification de chaque attribut
+présent dans les réponses.</p>
+</li>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Compréhension de l’authentification</p>
+<p>L’API ProjectWorks utilise une authentification de type Basic Auth.</p>
+<p>Deux informations sont nécessaires pour accéder aux données :</p>
+<ul>
+<li>le consumer key </li>
+<li>le consumer secret</li>
 </ul>
 </li>
-</ul>
-</div>
-<h3 id="decisions-et-ajustements">Décisions et ajustements<a class="headerlink" href="#decisions-et-ajustements" title="Permanent link">&para;</a></h3>
-<blockquote>
-<p>À compléter uniquement si des choix structurants ont été faits
-ou si l’orientation du projet a évolué.</p>
-</blockquote>
-<div class="admonition info">
-<p class="admonition-title">Décisions</p>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Test manuel de l’API avec Postman</p>
+<p>Avant de développer le notebook dans Microsoft Fabric, les appels API ont été
+testés manuellement avec Postman.</p>
+<p>Postman est un outil qui permet d’envoyer des requêtes à une API et de visualiser
+directement les réponses retournées.</p>
+<p>Ces tests ont permis de :</p>
 <ul>
-<li>Abandon de l’approche X jugée trop complexe</li>
-<li>Reformulation de la problématique suite aux premières analyses</li>
+<li>confirmer que les informations d’authentification étaient valides </li>
+<li>vérifier les URLs exactes des endpoints </li>
+<li>confirmer que l’API était accessible </li>
+<li>observer la structure des données retournées </li>
+<li>identifier le format JSON des réponses </li>
+<li>vérifier la présence de plusieurs pages de données </li>
+<li>comprendre le fonctionnement de la pagination.</li>
 </ul>
-</div>
-<h3 id="difficultes-rencontrees">Difficultés rencontrées<a class="headerlink" href="#difficultes-rencontrees" title="Permanent link">&para;</a></h3>
-<blockquote>
-<p>À compléter uniquement si des obstacles ont eu un impact réel
-sur l’avancement du projet.</p>
-</blockquote>
-<div class="admonition warning">
-<p class="admonition-title">Difficultés</p>
+</li>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Validation des endpoints ProjectWorks</p>
+<p>Après l’analyse de la documentation, chaque endpoint retenu a été validé
+individuellement dans Postman avant d’être intégré au notebook.</p>
+<p>Pour chaque endpoint, les vérifications suivantes ont été effectuées :</p>
 <ul>
-<li>Problème de configuration du plugin Mermaid<ul>
-<li>Confusion entre <code>mkdocs-mermaid2-plugin</code> (pip)
-  et <code>mermaid2</code> (nom du plugin)</li>
-<li>Résolu après nettoyage et configuration correcte dans <code>mkdocs.yml</code></li>
+<li>l’endpoint répond avec un statut HTTP <code>200</code> </li>
+<li>la réponse est bien au format JSON </li>
+<li>les champs attendus sont présents dans la réponse </li>
+<li>les données retournées correspondent à l’objet ciblé </li>
+<li>la pagination se comporte comme prévu lorsqu’il y a beaucoup d’enregistrements</li>
+</ul>
+<p>Cette validation a permis de figer la liste des endpoints à extraire et de
+s’assurer qu’aucun d’entre eux ne renvoyait d’erreur avant l’automatisation.</p>
+</li>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Analyse des réponses JSON</p>
+<p>Les réponses retournées par l’API ont été analysées afin de comprendre leur
+structure avant de développer le notebook.</p>
+<p>Cette analyse a permis d’identifier :</p>
+<ul>
+<li>les champs principaux de chaque objet </li>
+<li>le type de chaque champ (texte, nombre, date, booléen, etc) </li>
+<li>la présence d’objets imbriqués et de listes </li>
+<li>les champs pouvant contenir des valeurs nulles</li>
+<li>le champ utilisé pour identifier chaque enregistrement de manière unique</li>
+</ul>
+<p>Cette analyse était nécessaire pour comprendre comment le notebook devait
+lire et enregistrer les données.</p>
+</li>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Analyse du mécanisme de pagination</p>
+<p>L’API ne retourne pas nécessairement tous les enregistrements dans une seule réponse.</p>
+<p>Les données peuvent être divisées en plusieurs pages.</p>
+<p>Le notebook devait donc :</p>
+<ol>
+<li>appeler la première page </li>
+<li>récupérer les premiers enregistrements </li>
+<li>vérifier si une page suivante existait </li>
+<li>appeler les pages suivantes </li>
+<li>regrouper l’ensemble des résultats</li>
+</ol>
+<p>Une limite de 100 enregistrements par page a été utilisée.</p>
+<p>Cette gestion était particulièrement importante pour les endpoints contenant
+beaucoup de données.</p>
+</li>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Création de la structure de stockage Bronze</p>
+<p>Un dossier distinct a été créé pour chaque objet ProjectWorks.</p>
+<p>Les fichiers ont également été organisés par année et par mois.</p>
+<p>Cette structure permet de :</p>
+<ul>
+<li>retrouver facilement les données d’un objet </li>
+<li>identifier la période d’extraction </li>
+<li>conserver un historique des fichiers </li>
+<li>faciliter les futurs traitements </li>
+<li>éviter de mélanger les données de plusieurs endpoints</li>
+</ul>
+</li>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Développement du premier notebook Bronze</p>
+<p>Un premier notebook dédié uniquement à l’extraction des données de l’API
+a été développé dans Microsoft Fabric.</p>
+<p>Un notebook est un programme composé de plusieurs cellules de code.</p>
+<p>Il permet d’exécuter du code Python ou Spark directement dans Microsoft Fabric.</p>
+<p>Le notebook développé était composé de quatre parties principales.</p>
+</li>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Création de la cellule de configuration</p>
+<p>La première cellule permettait de :</p>
+<ul>
+<li>importer les librairies Python nécessaires </li>
+<li>définir l’URL de l’API </li>
+<li>configurer l’authentification </li>
+<li>définir le Lakehouse Bronze cible </li>
+<li>définir le chemin de destination des fichiers </li>
+<li>préparer la liste des endpoints à appeler</li>
+</ul>
+</li>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Création de la fonction d’extraction</p>
+<p>Une fonction générique a été développée pour appeler les endpoints.</p>
+<p>Cette fonction devait :</p>
+<ul>
+<li>construire l’URL de l’endpoint </li>
+<li>envoyer la requête HTTP </li>
+<li>transmettre les informations d’authentification </li>
+<li>vérifier le statut de la réponse </li>
+<li>lire le contenu JSON </li>
+<li>gérer les différentes pages </li>
+<li>regrouper les enregistrements</li>
+</ul>
+<p>La même fonction pouvait être utilisée pour plusieurs endpoints.</p>
+</li>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Création de la fonction de sauvegarde</p>
+<p>Une deuxième fonction a été développée pour enregistrer les résultats
+dans le Lakehouse.</p>
+<p>Cette fonction devait :</p>
+<ul>
+<li>recevoir les données extraites </li>
+<li>identifier l’objet en cours </li>
+<li>construire le chemin Bronze </li>
+<li>ajouter l’année et le mois </li>
+<li>générer le nom du fichier </li>
+<li>ajouter la date d’exécution </li>
+<li>sauvegarder les données au format JSON</li>
+</ul>
+</li>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Création de la boucle principale</p>
+<p>Une boucle principale parcourait la liste de tous les endpoints.</p>
+<ul>
+<li>Pour chaque endpoint, le notebook commence par sélectionner l’endpoint à traiter, puis appelle l’API ProjectWorks.
+  Il gère ensuite la pagination afin de récupérer l’ensemble des enregistrements, avant de récupérer les données au format JSON.
+  Une fois les données obtenues, il construit le chemin de destination dans la couche Bronze, écrit le fichier dans le Lakehouse,
+  et termine en calculant les métriques d’exécution.</li>
+</ul>
+</li>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Exécution de la première extraction complète</p>
+<p>Une première extraction complète a été lancée pour l’ensemble des endpoints validés.</p>
+<p>Lors de cette exécution :</p>
+<ul>
+<li>chaque endpoint a été appelé automatiquement par la boucle principale </li>
+<li>la pagination a été gérée jusqu’à la récupération de tous les enregistrements </li>
+<li>les données ont été écrites dans la couche Bronze au format JSON </li>
+<li>les fichiers ont été rangés dans les dossiers par objet, année et mois </li>
+<li>les métriques d’exécution qui sont les nombre de lignes lues et écrites ont été calculées</li>
+</ul>
+</li>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Validation des résultats</p>
+<p>Après l’exécution, les résultats ont été vérifiés afin de confirmer que :</p>
+<ul>
+<li>les enregistrements ont bien été lus depuis l’API </li>
+<li>les enregistrements ont bien été écrits dans le Lakehouse </li>
+<li>les fichiers JSON ont été générés </li>
+<li>le nombre de lignes écrites correspondait au nombre de lignes lues </li>
+<li>aucune erreur n’a été détectée pendant l’exécution</li>
 </ul>
 </li>
 </ul>
