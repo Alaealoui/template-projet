@@ -32,7 +32,10 @@ title: Suivi du projet
 - Conserver les données brutes dans une couche Bronze
 
 ### Travail réalisé
+
 !!! abstract "Avancement"
+
+
     - [x] Compréhension de l’architecture générale du projet
 
       Le projet consiste à transférer les données de ProjectWorks vers Microsoft Fabric
