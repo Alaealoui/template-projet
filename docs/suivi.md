@@ -12,278 +12,286 @@ title: Suivi du projet
 
 # Suivi de projet
 
-> :bulb: Cette page documente l’évolution du projet dans le temps.
-> Elle sert à rendre visibles les décisions, ajustements et apprentissages.
-> Les entrées peuvent être hebdomadaires ou bi-hebdomadaires.  
-> N'oubliez pas d’effacer ou de mettre en commentaires les notes (`>`) avant la remise finale.
-
 ---
 
 ## Semaine 1 (1er–7 mai 2026)
 
 ### Objectifs de la période
 
-- Comprendre le fonctionnement général de l’API REST ProjectWorks
-- Identifier les premières données nécessaires au projet
-- Vérifier que les données ProjectWorks étaient accessibles
-- Comprendre la structure des réponses retournées par l’API
-- Mettre en place une première zone de stockage dans Microsoft Fabric
-- Développer une première extraction automatisée des données
-- Conserver les données brutes dans une couche Bronze
+- Comprendre le fonctionnement de l’API REST ProjectWorks
+- Identifier les données nécessaires au projet
+- Mise en place de l'architecture 
+- Mettre en place une première extraction vers Microsoft Fabric
+- Créer la première version de la couche Bronze
 
 ### Travail réalisé
 
 !!! abstract "Avancement"
 
-    - [x] Compréhension de l’architecture générale du projet
-
-        Le projet consiste à transférer les données de ProjectWorks vers Microsoft Fabric
-        afin qu’elles puissent ensuite être nettoyées, structurées et utilisées pour
-        produire des analyses et des rapports.
-
-        Le flux initial mis en place pour la couche Bronze, qui consiste à l’extraction
-        des données brutes, est le suivant :
-
-        API REST ProjectWorks -> Notebook Python dans Microsoft Fabric -> Lakehouse Microsoft Fabric -> Couche Bronze contenant les fichiers JSON bruts
-
-    - [x] Prise en main de Microsoft Fabric
-
-        Microsoft Fabric est la plateforme utilisée pour centraliser les données,
-        exécuter les traitements et préparer les futures analyses.
-
-        Le développement a d’abord été effectué dans mon propre workspace, avant le
-        déploiement dans l’environnement de développement.
-
-        Un workspace est un espace de travail qui regroupe les différents éléments
-        du projet, par exemple :
-
-        - les notebooks 
-        - les pipelines 
-        - les Lakehouses 
-        - les Warehouses 
-        - les rapports Power BI
-
-    - [x] Compréhension du rôle du Lakehouse
-
-        Le Lakehouse est l’espace dans lequel les données extraites de ProjectWorks
-        sont enregistrées.
-
-        Il combine deux façons de stocker les données :
-
-        - une zone de fichiers, semblable à un espace de stockage de fichiers ;
-        - une zone de tables structurées, qui pourra être utilisée dans les étapes suivantes.
-
-        Pour la couche Bronze, les données ont été enregistrées dans la zone Files
-        du Lakehouse.
-
-        La zone Files permet de conserver les données sous leur format d’origine,
-        sans les transformer immédiatement en tables.
-
-        À cette étape, les données étaient donc conservées sous forme de fichiers JSON.
-
-    - [x] Définition du rôle de la couche Bronze
-
-        La couche Bronze correspond à la première couche de l’architecture de données.
-
-        Son rôle est de conserver une copie des données reçues depuis la source,
-        dans le format exact de la réponse originale de l’API.
-
-        Dans cette couche :
-
-        - les colonnes ne sont pas encore renommées 
-        - les types de données ne sont pas encore corrigés 
-        - les valeurs nulles ne sont pas nettoyées 
-        - les objets imbriqués ne sont pas encore séparés 
-        - aucune règle métier n’est appliquée
-
-        Cette approche permet de conserver une copie fidèle des données ProjectWorks
-        avant de commencer les transformations.
-
-        En cas d’erreur dans les étapes suivantes, les fichiers Bronze peuvent être
-        relus sans devoir rappeler immédiatement l’API.
-
-    - [x] Analyse de l’API REST ProjectWorks
-
-        Une analyse des endpoints a été réalisée dans Postman, en s’appuyant sur la
-        documentation officielle de ProjectWorks, afin de déterminer de quels endpoints
-        nous aurions besoin pour l’extraction.
-
-        Il fallait donc lire attentivement la documentation, bien la comprendre, savoir
-        ce que chaque endpoint retourne, et comprendre la signification de chaque attribut
-        présent dans les réponses.
-
-    - [x] Compréhension de l’authentification
-
-        L’API ProjectWorks utilise une authentification de type Basic Auth.
-
-        Deux informations sont nécessaires pour accéder aux données :
-
-        - le consumer key 
-        - le consumer secret
-
-    - [x] Test manuel de l’API avec Postman
-
-        Avant de développer le notebook dans Microsoft Fabric, les appels API ont été
-        testés manuellement avec Postman.
-
-        Postman est un outil qui permet d’envoyer des requêtes à une API et de visualiser
-        directement les réponses retournées.
-
-        Ces tests ont permis de :
-
-        - confirmer que les informations d’authentification étaient valides 
-        - vérifier les URLs exactes des endpoints 
-        - confirmer que l’API était accessible 
-        - observer la structure des données retournées 
-        - identifier le format JSON des réponses 
-        - vérifier la présence de plusieurs pages de données 
-        - comprendre le fonctionnement de la pagination.
-
-    - [x] Validation des endpoints ProjectWorks
-
-        Après l’analyse de la documentation, chaque endpoint retenu a été validé
-        individuellement dans Postman avant d’être intégré au notebook.
-
-        Pour chaque endpoint, les vérifications suivantes ont été effectuées :
-
-        - l’endpoint répond avec un statut HTTP `200` 
-        - la réponse est bien au format JSON 
-        - les champs attendus sont présents dans la réponse 
-        - les données retournées correspondent à l’objet ciblé 
-        - la pagination se comporte comme prévu lorsqu’il y a beaucoup d’enregistrements
-
-        Cette validation a permis de figer la liste des endpoints à extraire et de
-        s’assurer qu’aucun d’entre eux ne renvoyait d’erreur avant l’automatisation.
-
-    - [x] Analyse des réponses JSON
-
-        Les réponses retournées par l’API ont été analysées afin de comprendre leur
-        structure avant de développer le notebook.
-
-        Cette analyse a permis d’identifier :
-
-        - les champs principaux de chaque objet 
-        - le type de chaque champ (texte, nombre, date, booléen, etc) 
-        - la présence d’objets imbriqués et de listes 
-        - les champs pouvant contenir des valeurs nulles
-        - le champ utilisé pour identifier chaque enregistrement de manière unique
-
-        Cette analyse était nécessaire pour comprendre comment le notebook devait
-        lire et enregistrer les données.
-
-    - [x] Analyse du mécanisme de pagination
-
-        L’API ne retourne pas nécessairement tous les enregistrements dans une seule réponse.
-
-        Les données peuvent être divisées en plusieurs pages.
-
-        Le notebook devait donc :
-
-        1. appeler la première page 
-        2. récupérer les premiers enregistrements 
-        3. vérifier si une page suivante existait 
-        4. appeler les pages suivantes 
-        5. regrouper l’ensemble des résultats
-
-        Une limite de 100 enregistrements par page a été utilisée.
-
-        Cette gestion était particulièrement importante pour les endpoints contenant
-        beaucoup de données.
-
+    - [x] Analyse de la documentation de l’API ProjectWorks
+    - [x] Test et validation des endpoints dans Postman
+    - [x] Analyse des réponses JSON et de la pagination
+    - [x] Prise en main du workspace, du Lakehouse et des notebooks Microsoft Fabric
     - [x] Création de la structure de stockage Bronze
+    - [x] Développement d’un premier notebook d’extraction
+    - [x] Première extraction complète des données vers des fichiers JSON
+    - [x] Validation des fichiers et des métriques d’exécution
 
-        Un dossier distinct a été créé pour chaque objet ProjectWorks.
+---
 
-        Les fichiers ont également été organisés par année et par mois.
+## Semaine 2 (8–14 mai 2026)
 
-        Cette structure permet de :
+### Objectifs de la période
 
-        - retrouver facilement les données d’un objet 
-        - identifier la période d’extraction 
-        - conserver un historique des fichiers 
-        - faciliter les futurs traitements 
-        - éviter de mélanger les données de plusieurs endpoints
+- Rendre le notebook Bronze réutilisable
+- Mettre en place les chargements complets et incrémentaux
+- Centraliser la configuration des objets ProjectWorks
+- Préparer l’automatisation du traitement
 
-    - [x] Développement du premier notebook Bronze
+### Travail réalisé
 
-        Un premier notebook dédié uniquement à l’extraction des données de l’API
-        a été développé dans Microsoft Fabric.
+!!! abstract "Avancement"
 
-        Un notebook est un programme composé de plusieurs cellules de code.
+    - [x] Transformation du notebook Bronze en notebook générique
+    - [x] Ajout de paramètres dynamiques
+    - [x] Analyse des chargements `Full` et `Incremental`
+    - [x] Test du filtre `ModifiedSinceDate` dans Postman
+    - [x] Création d'un premier Warehouse 
+    - [x] Création d'une premiere table de controle que pour la couche bronze
+    - [x] Configuration des différents objets ProjectWorks
 
-        Il permet d’exécuter du code Python ou Spark directement dans Microsoft Fabric.
+### Décisions et ajustements
 
-        Le notebook développé était composé de quatre parties principales.
+!!! info "Décisions"
 
-    - [x] Création de la cellule de configuration
+    - Conserver `Resources` en extraction complète, même si l’endpoint supporte l’incrémental, car certaines valeurs de `ResourceID` sont nulles et pourraient créer des problèmes dans la couche Silver.
 
-        La première cellule permettait de :
+---
 
-        - importer les librairies Python nécessaires 
-        - définir l’URL de l’API 
-        - configurer l’authentification 
-        - définir le Lakehouse Bronze cible 
-        - définir le chemin de destination des fichiers 
-        - préparer la liste des endpoints à appeler
+## Semaine 3 (15–21 mai 2026)
 
-    - [x] Création de la fonction d’extraction
+### Objectifs de la période
 
-        Une fonction générique a été développée pour appeler les endpoints.
+- Automatiser l’extraction des données ProjectWorks
+- Piloter les traitements à partir de la table de contrôle
+- Mettre à jour automatiquement les watermarks
+- Tester le pipeline Source vers Bronze
 
-        Cette fonction devait :
+### Travail réalisé
 
-        - construire l’URL de l’endpoint 
-        - envoyer la requête HTTP 
-        - transmettre les informations d’authentification 
-        - vérifier le statut de la réponse 
-        - lire le contenu JSON 
-        - gérer les différentes pages 
-        - regrouper les enregistrements
+!!! abstract "Avancement"
 
-        La même fonction pouvait être utilisée pour plusieurs endpoints.
+    - [x] Création d'un premier pipeline pour la couche bronze
+    - [x] Ajout d’une activité `Lookup` pour lire la table de contrôle
+    - [x] Ajout d’une boucle `ForEach` pour traiter les objets actifs
+    - [x] Transmission dynamique des paramètres au notebook Bronze
+    - [x] Mise à jour du watermark après une extraction réussie
+    - [x] Test du pipeline avec les différents objets ProjectWorks
 
-    - [x] Création de la fonction de sauvegarde
+### Difficultés rencontrées
 
-        Une deuxième fonction a été développée pour enregistrer les résultats
-        dans le Lakehouse.
+!!! warning "Difficultés"
 
-        Cette fonction devait :
+    - Conflit SQL lors de la mise à jour simultanée des watermarks
+        - Résolu en exécutant les objets de manière séquentielle
+    - Présence de doublons dans la table de contrôle
+        - Certains objets étaient exécutés plusieurs fois
+        - Résolu par le nettoyage de la table
 
-        - recevoir les données extraites 
-        - identifier l’objet en cours 
-        - construire le chemin Bronze 
-        - ajouter l’année et le mois 
-        - générer le nom du fichier 
-        - ajouter la date d’exécution 
-        - sauvegarder les données au format JSON
+---
 
-    - [x] Création de la boucle principale
+## Semaine 4 (22–28 mai 2026)
 
-        Une boucle principale parcourait la liste de tous les endpoints.
+### Objectifs de la période
 
-        - Pour chaque endpoint, le notebook commence par sélectionner l’endpoint à traiter, puis appelle l’API ProjectWorks.
-          Il gère ensuite la pagination afin de récupérer l’ensemble des enregistrements, avant de récupérer les données au format JSON.
-          Une fois les données obtenues, il construit le chemin de destination dans la couche Bronze, écrit le fichier dans le Lakehouse,
-          et termine en calculant les métriques d’exécution.
+- Ajouter le suivi des exécutions du pipeline
+- Enregistrer les succès, les erreurs et les métriques
+- Stabiliser l’écriture des fichiers dans OneLake
+- Finaliser la couche Bronze
 
-    - [x] Exécution de la première extraction complète
+### Travail réalisé
 
-        Une première extraction complète a été lancée pour l’ensemble des endpoints validés.
+!!! abstract "Avancement"
 
-        Lors de cette exécution :
+    - [x] Création d’une table de journalisation des activités
+    - [x] Ajout du logging des exécutions réussies
+    - [x] Ajout du logging des exécutions en erreur
+    - [x] Enregistrement des lignes lues, des lignes écrites et des fichiers générés
+    - [x] Enregistrement des dates d’exécution et des messages d’erreur
+    - [x] Correction de l’écriture des fichiers JSON dans OneLake
+    - [x] Validation du fonctionnement complet de la couche Bronze
 
-        - chaque endpoint a été appelé automatiquement par la boucle principale 
-        - la pagination a été gérée jusqu’à la récupération de tous les enregistrements 
-        - les données ont été écrites dans la couche Bronze au format JSON 
-        - les fichiers ont été rangés dans les dossiers par objet, année et mois 
-        - les métriques d’exécution qui sont les nombre de lignes lues et écrites ont été calculées
+### Difficultés rencontrées
 
-    - [x] Validation des résultats
+!!! warning "Difficultés"
 
-        Après l’exécution, les résultats ont été vérifiés afin de confirmer que :
+    - L’écriture avec `pandas.to_json()` ne fonctionnait pas correctement dans OneLake
+        - Résolu en convertissant les données en DataFrame Spark
+        - Utilisation de l’écriture Spark pour générer les fichiers JSON
+    - La récupération des erreurs et des métriques du notebook demandait plusieurs ajustements dans le pipeline
+---
 
-        - les enregistrements ont bien été lus depuis l’API 
-        - les enregistrements ont bien été écrits dans le Lakehouse 
-        - les fichiers JSON ont été générés 
-        - le nombre de lignes écrites correspondait au nombre de lignes lues 
-        - aucune erreur n’a été détectée pendant l’exécution
+## Semaine 5 (1er–7 juin 2026)
+
+### Objectifs de la période
+
+- Commencer le développement de la couche Silver
+- Transformer les fichiers JSON Bronze en tables structurées
+- Gérer les objets simples et les tableaux imbriqués
+- Tester le traitement sur plusieurs objets
+
+### Travail réalisé
+
+!!! abstract "Avancement"
+
+    - [x] Développement du notebook générique Silver
+    - [x] Lecture des fichiers JSON enregistrés dans la couche Bronze
+    - [x] Sélection, renommage et typage des colonnes
+    - [x] Création des premières tables Delta dans le Lakehouse Silver
+    - [x] Mise en place des differents cas de traitements des endpoints
+    - [x] Tests sur les objets 
+
+### Difficultés rencontrées
+
+!!! warning "Difficultés"
+
+    - Certains objets contenaient des listes imbriquées qui devaient être séparées de la table principale.
+    - Plusieurs vérifications ont été nécessaires sur les chemins, les paramètres et l’actualisation du Lakehouse.
+
+---
+
+## Semaine 6 (8–14 juin 2026)
+
+### Objectifs de la période
+
+- Stabiliser le notebook Silver
+- Gérer les différentes méthodes de chargement
+- Améliorer le suivi des exécutions
+- Centraliser les configurations ProjectWorks
+
+### Travail réalisé
+
+!!! abstract "Avancement"
+
+    - [x] Ajout des modes de chargement `overwrite`, `append` et `merge`
+    - [x] Mise en place du `merge` pour mettre à jour les lignes existantes et insérer les nouvelles
+    - [x] Gestion des clés simples, composites et des clés provenant des objets parents
+    - [x] Ajout du traitement des fichiers vides avec un statut `Warning`
+    - [x] Ajout des métriques : fichiers lus, lignes lues, lignes transformées et erreurs
+    - [x] Création du notebook utilitaire de gestion des tables de paramètres
+    - [x] Début de la synchronisation des tables de contrôle dans le Warehouse
+
+### Décisions et ajustements
+
+!!! info "Décisions"
+
+    - Utiliser `overwrite` lorsqu’aucune clé fiable n’est disponible.
+    - Utiliser une clé composite pour certains objets enfants, notamment les jours de congé.                   
+    - Considérer une réponse API vide comme un avertissement et non comme une erreur technique.
+
+
+---
+
+## Semaine 7 (15–21 juin 2026)
+
+### Objectifs de la période
+
+- Automatiser l’exécution complète des traitements ProjectWorks
+- Centraliser les paramètres dans le Warehouse
+- Mettre en place un pipeline master quotidien
+- Ajouter un monitoring centralisé
+
+### Travail réalisé
+
+!!! abstract "Avancement"
+
+    - [x] Finalisation des notebooks de configuration Bronze et Silver
+    - [x] Création d’un notebook master pour synchroniser les configurations
+    - [x] Création du pipeline de la couche silver
+    - [x] Orchestration des flux Bronze et Silver
+    - [x] Création du pipeline master quotidien ProjectWorks
+    - [x] Transmission des paramètres et des informations d’exécution entre les pipelines
+    - [x] Mise en place du monitoring dans un Eventhouse
+    - [x] Création des logs de statut, des logs d’erreur et d’une règle d’alerte
+    - [x] Changement de l'architecture actuel de l'entreprise, en ecrivant direct les configurations dans le Warehouse
+      sans cree une copie dans le lakehouse 
+    
+    
+
+### Décisions et ajustements
+
+!!! info "Décisions"
+
+    - Abandonner le passage par un Lakehouse de paramètres et centraliser directement
+      les configurations dans le Warehouse.
+
+    - Utiliser `synapsesql()` dans le notebook pour écrire le DataFrame Spark dans
+      une table de staging du Warehouse. Cette table est reconstruite en mode
+      `overwrite` à chaque exécution, puisqu’elle sert uniquement de zone temporaire.
+
+    - Utiliser une connexion JDBC vers le Warehouse pour exécuter le `MERGE T-SQL`
+      entre la table de staging et la table de contrôle cible. Cette étape était
+      nécessaire, car `synapsesql()` permet de lire ou d’écrire des DataFrames,
+      mais pas d’exécuter directement une commande SQL.
+
+    - Authentifier la connexion JDBC avec un jeton Microsoft Entra récupéré pendant
+      l’exécution, afin d’éviter de stocker un mot de passe dans le notebook.
+
+    - Encapsuler le `MERGE` dans une transaction avec gestion des erreurs et
+      `ROLLBACK`, afin d’éviter toute mise à jour partielle de la table cible
+      en cas d’échec.
+
+    - Utiliser un pipeline master pour lancer les traitements dans le bon ordre.
+    
+### Difficultés rencontrées
+
+!!! warning "Difficultés"
+
+    - Comprendre la circulation des paramètres entre les notebooks, les sous-pipelines et le pipeline master.
+    - Adapter la solution aux limites d’écriture entre les notebooks Spark et le Warehouse.
+    - Vérifier que les erreurs remontaient correctement jusqu’au monitoring central.
+
+---
+
+
+## Semaine 8 (22–30 juin 2026)
+
+### Objectifs de la période
+
+- Adapter la méthode de chargement Silver à l’architecture utilisée dans l’entreprise
+- Remplacer la logique `merge` par une approche `delete + append`
+- Gérer correctement les objets enfants et les tableaux imbriqués
+- Adapter le notebook au traitement de `Task_Users`
+
+### Travail réalisé
+
+!!! abstract "Avancement"
+
+    - [x] Abandon de la méthode de chargement `merge`
+    - [x] Mise en place de la logique `delete + append`
+    - [x] Suppression des anciennes lignes associées aux objets présents dans le nouveau fichier Bronze
+    - [x] Ajout des nouvelles versions des lignes dans les tables Silver
+    - [x] Adaptation du traitement des objets de type `array`
+    - [x] Adaptation du notebook pour traiter le tableau imbriqué `Tasks.Users`
+    - [x] Conservation du `TaskID` comme clé de rattachement au parent
+    - [x] Création d’une ligne par association tâche-utilisateur dans `Task_Users`
+    - [x] Tests et validation de la nouvelle logique de chargement
+
+### Décisions et ajustements
+
+!!! info "Décisions"
+
+    - Remplacer le `merge` par la méthode `delete + append` afin d’aligner le notebook avec l’architecture utilisée dans l’entreprise.
+    - Pour les tables enfants, supprimer les anciennes lignes liées aux identifiants parents présents dans le nouveau lot, puis ajouter les nouvelles lignes.
+    - Traiter `Task_Users` comme un tableau enfant de `Tasks`. Chaque tâche retournée par l’API contient un tableau `Users` imbriqué qui doit être explosé afin         de produire une ligne par association tâche-utilisateur, plutôt que d’être conservé sous forme d’un objet JSON.
+    - Conserver le `TaskID` dans chaque ligne créée afin de relier l’utilisateur à sa tâche d’origine.
+    - Comme la relation entre les tâches et les utilisateurs est contenue dans la structure imbriquée de l’API, le notebook doit d’abord lire les tâches                parentes, puis dérouler le tableau `Users` de chaque tâche pour alimenter la table `PW_Task_Users`.
+
+### Difficultés rencontrées
+
+!!! warning "Difficultés"
+
+    - Certaines tables enfants ne possédaient pas de clé unique suffisamment fiable pour utiliser le `merge`, ce qui a motivé le passage à la méthode `delete +     append`.
+    - Le tableau `Tasks.Users` contenait des identifiants utilisateurs imbriqués qui devaient être transformés en plusieurs lignes distinctes tout en conservant        leur lien avec le `TaskID` parent.
+    - Une simple lecture à plat du fichier JSON ne permettait pas de construire correctement la relation entre les tâches et les utilisateurs.
+    - La suppression devait cibler uniquement les lignes associées aux `TaskID` présents dans le nouveau fichier Bronze avant l’ajout des nouvelles associations,       afin d’éviter les doublons ou la suppression de données non concernées.
