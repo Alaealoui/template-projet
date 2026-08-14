@@ -295,3 +295,254 @@ title: Suivi du projet
     - Le tableau `Tasks.Users` contenait des identifiants utilisateurs imbriqués qui devaient être transformés en plusieurs lignes distinctes tout en conservant        leur lien avec le `TaskID` parent.
     - Une simple lecture à plat du fichier JSON ne permettait pas de construire correctement la relation entre les tâches et les utilisateurs.
     - La suppression devait cibler uniquement les lignes associées aux `TaskID` présents dans le nouveau fichier Bronze avant l’ajout des nouvelles associations,       afin d’éviter les doublons ou la suppression de données non concernées.
+
+
+---
+
+## Semaine 9 (1er–7 juillet 2026)
+
+### Objectifs de la période
+
+- Fiabiliser le traitement Bronze vers Silver pour les tableaux imbriqués vides
+- Corriger les métriques enregistrées dans les journaux d’exécution
+- Valider une exécution complète du pipeline sur l’ensemble des objets ProjectWorks
+
+### Travail réalisé
+
+!!! abstract "Avancement"
+
+    - [x] Correction de l’erreur rencontrée lors du traitement de `PW_Invoice_Payments`
+    - [x] Sécurisation du traitement des tableaux imbriqués afin de gérer correctement les structures vides ou atypiques retournées par l’API
+    - [x] Extension de la gestion des fichiers vides pour couvrir le cas où le fichier Bronze contient des données, mais où le tableau imbriqué est vide pour l’ensemble du lot
+    - [x] Ajout du contrôle `has_any_row` afin d’éviter toute reconstruction incorrecte d’une table Silver lorsqu’aucune ligne n’est produite
+    - [x] Correction de la métrique du nombre de lignes écrites dans les logs d’exécution
+    - [x] Correction de la transmission de la métrique `activity_rowsWritten` vers les activités de journalisation `Success` et `Failure`
+    - [x] Vérification en SQL du nombre réel de lignes écrites
+    - [x] Validation de l’exécution complète des 13 objets configurés, tous terminés avec le statut `Succeeded`
+
+### Décisions et ajustements
+
+!!! info "Décisions"
+
+    - Considérer un tableau imbriqué vide comme un cas normal de traitement et non comme une erreur bloquante.
+    - Conserver le mode `append` lorsqu’un lot ne produit aucune ligne afin d’éviter qu’un chargement incrémental vide n’écrase une table existante.
+
+### Difficultés rencontrées
+
+!!! warning "Difficultés"
+
+    - Lorsque le tableau `Payments` était vide pour toutes les factures d’un lot, Spark pouvait inférer un type `ARRAY<STRING>` plutôt qu’un `ARRAY<STRUCT>`, provoquant l’échec de l’extraction des sous-champs.
+    - La gestion initiale d’un DataFrame Silver vide pouvait faire basculer le traitement vers un mode `overwrite`, avec un risque d’écrasement complet de la table.
+    - La métrique des lignes écrites retournait le nombre de fichiers générés au lieu du nombre réel de lignes.
+
+---
+
+## Semaine 10 (8–14 juillet 2026)
+
+### Objectifs de la période
+
+- Fiabiliser la configuration centralisée des traitements ProjectWorks
+- Rétablir l’écriture des données Silver vers la zone inbound du Warehouse
+- Vérifier la cohérence de la configuration sur l’ensemble des objets
+
+### Travail réalisé
+
+!!! abstract "Avancement"
+
+    - [x] Génération des scripts SQL permettant de reconstruire les tables de contrôle à partir des fichiers de configuration corrigés
+    - [x] Rechargement des tables de contrôle Bronze vers Silver et Source vers Bronze
+    - [x] Diagnostic des échecs rencontrés sur les traitements `Timesheets` et `Resourcing`
+    - [x] Correction des paramètres `wh_inbound_schema_name` et `wh_inbound_table_name` pour les 13 objets configurés
+    - [x] Vérification de l’existence des 13 tables cibles dans la zone inbound du Warehouse
+    - [x] Analyse et correction du mécanisme de récupération du schéma cible avant l’écriture des données
+    - [x] Mise à jour du suivi de projet couvrant les travaux réalisés depuis le début du stage
+
+### Décisions et ajustements
+
+!!! info "Décisions"
+
+    - Générer automatiquement le nom de la table cible à partir du nom de la table Silver plutôt que de configurer chaque objet manuellement.
+    - Conserver une règle de nommage générique afin de faciliter l’ajout futur de nouveaux objets ProjectWorks.
+
+### Difficultés rencontrées
+
+!!! warning "Difficultés"
+
+    - Le rechargement complet des tables de contrôle a remplacé par `NULL` certaines colonnes présentes dans la base mais absentes des fichiers de configuration.
+    - Le message d’erreur retourné suggérait initialement un problème d’accès à la source alors que l’origine réelle était un paramètre de configuration non renseigné.
+    - Plusieurs notebooks semblaient fonctionner correctement uniquement parce que leurs fichiers Bronze du jour étaient vides. Les traitements `Timesheets` et `Resourcing`, qui contenaient des données, ont permis de mettre en évidence le problème de configuration global.
+
+---
+
+## Semaine 11 (15–21 juillet 2026)
+
+### Objectifs de la période
+
+- Finaliser la règle d’alerte préparée lors de la mise en place du monitoring
+- Vérifier que les échecs de pipeline sont correctement enregistrés et détectés
+- Tester la chaîne de supervision de bout en bout
+
+### Travail réalisé
+
+!!! abstract "Avancement"
+
+    - [x] Vérification du fonctionnement de l’Eventhouse de supervision et de la table de journalisation des échecs
+    - [x] Construction de la règle d’alerte `ALERT_Pipeline_Failure` à partir des requêtes KQL existantes
+    - [x] Configuration d’une surveillance périodique de la table de journalisation toutes les 15 minutes
+    - [x] Correction de la requête KQL, notamment pour la gestion de `ingestion_time()` et la conversion des valeurs de date
+    - [x] Déclenchement volontaire d’un échec de pipeline afin de tester le mécanisme
+    - [x] Validation de l’enregistrement de l’erreur dans l’Eventhouse et de sa détection par la règle d’alerte
+    - [ ] Validation de la réception de la notification
+
+### Décisions et ajustements
+
+!!! info "Décisions"
+
+    - Construire la règle d’alerte directement à partir du jeu de requêtes KQL déjà utilisé pour le monitoring.
+    - Simuler un échec à l’aide d’un objet inexistant dans la table de contrôle afin de tester la supervision sans modifier les données existantes.
+
+### Difficultés rencontrées
+
+!!! warning "Difficultés"
+
+    - L’échec du pipeline était correctement enregistré et détecté par la règle, mais aucune notification n’était reçue.
+    - Les tests ont permis d’isoler le problème au niveau de l’action de notification plutôt qu’au niveau de la logique de détection.
+
+---
+
+## Semaine 12 (22–31 juillet 2026)
+
+### Objectifs de la période
+
+- Finaliser le dispositif de supervision et d’alerte
+- Préparer l’exécution du pipeline ProjectWorks dans l’environnement de production
+- Ajuster les méthodes de chargement des différents objets
+- Préparer la construction de la zone analytique
+
+### Travail réalisé
+
+!!! abstract "Avancement"
+
+    - [x] Correction de l’action de notification et validation complète de la chaîne d’alerte
+    - [x] Réception des alertes contenant le nom du pipeline, l’identifiant d’exécution et l’horodatage
+    - [x] Personnalisation du contenu des notifications
+    - [x] Création des valeurs de production dans la bibliothèque de variables
+    - [x] Configuration du nom du workspace, de la chaîne de connexion aux métadonnées et des identifiants des Lakehouses
+    - [x] Construction des chemins de stockage Bronze et Silver pour l’environnement de production
+    - [x] Passage des objets ProjectWorks en chargement incrémental, à l’exception de `Resourcing`
+    - [x] Début de la conception du modèle dimensionnel avec les premières dimensions et tables de faits
+    - [ ] Compléter les variables restantes nécessaires au déploiement
+    - [ ] Effectuer les chargements initiaux manquants
+
+### Décisions et ajustements
+
+!!! info "Décisions"
+
+    - Conserver `Resourcing` en chargement complet conformément à la décision prise précédemment.
+    - Regrouper les chargements initiaux manquants avec les prochaines corrections de configuration afin d’éviter plusieurs rechargements complets successifs.
+
+### Difficultés rencontrées
+
+!!! warning "Difficultés"
+
+    - Plusieurs objets avaient uniquement été alimentés par des chargements incrémentaux sans avoir bénéficié d’un chargement initial complet.
+    - Cette situation entraînait des données incomplètes dans la zone inbound et empêchait une validation fiable des futurs traitements analytiques.
+
+---
+
+## Semaine 13 (1er–7 août 2026)
+
+### Objectifs de la période
+
+- Construire la zone analytique à partir des données disponibles dans la zone inbound
+- Définir des modèles de chargement réutilisables pour les dimensions et les faits
+- Corriger l’incomplétude des données identifiée lors des semaines précédentes
+
+### Travail réalisé
+
+!!! abstract "Avancement"
+
+    - [x] Création de `USER_DIM` et `PROJECT_DIM` ainsi que de leurs procédures de chargement
+    - [x] Définition d’un modèle standard pour les dimensions utilisant une table temporaire, une empreinte `SHA2_256` pour détecter les changements, une mise à jour de type 1 et des clés de substitution
+    - [x] Ajout d’une ligne Inconnu dans les dimensions afin de gérer les références absentes
+    - [x] Mise en place des contrôles de doublons et de la gestion transactionnelle des chargements
+    - [x] Génération de `DATE_DIM` pour la période 2015 à 2055 selon le calendrier fiscal du 1er avril au 31 mars
+    - [x] Création de `RESOURCING_FACT` avec un grain projet, date et utilisateur et agrégation des heures
+    - [x] Définition d’un modèle standard de chargement des faits avec résolution des clés de substitution
+    - [x] Réalisation de tests d’idempotence, de doublons et de réconciliation sur les premières tables
+    - [x] Retrait du suffixe `_SRC` des tables inbound à la demande du superviseur
+    - [x] Mise à jour des tables de contrôle et renommage des 13 tables physiques afin d’aligner leur nomenclature avec celle de la couche Silver
+    - [x] Passage temporaire des extractions en chargement complet afin de reconstruire les jeux de données incomplets
+
+### Décisions et ajustements
+
+!!! info "Décisions"
+
+    - Utiliser par défaut une historisation de type 1 pour les dimensions, sauf lorsqu’un besoin métier justifie la conservation de l’historique.
+    - Ajouter une ligne Inconnu identifiée par la clé de substitution `-1` dans chaque dimension afin d’éviter le rejet des faits dont la référence n’est pas disponible.
+    - Ne pas ajouter de ligne Inconnu dans `DATE_DIM`, celle-ci étant générée de manière exhaustive.
+    - Nommer l’année fiscale à partir de son année de fin, sous réserve de validation avec le superviseur.
+
+### Difficultés rencontrées
+
+!!! warning "Difficultés"
+
+    - Plusieurs tables contenaient uniquement une fraction des données attendues en raison de l’absence de chargement initial complet.
+    - Cette situation rendait les validations de la zone analytique non représentatives.
+    - La conversion et l’arrondi de certaines mesures d’heures ont nécessité des contrôles supplémentaires afin de garantir la réconciliation des totaux entre les différentes couches.
+
+---
+
+## Semaine 14 (8–14 août 2026)
+
+### Objectifs de la période
+
+- Compléter le modèle en étoile avec les dimensions et les faits demandés
+- Valider la qualité et la cohérence de l’ensemble de la zone analytique
+- Vérifier la réconciliation des données entre les différentes couches du projet
+
+### Travail réalisé
+
+!!! abstract "Avancement"
+
+    - [x] Création de `CLIENT_DIM` et `ASSIGNMENT_FACT`
+    - [x] Création de `TASK_DIM` et `MODULE_DIM`
+    - [x] Création de `TIMESHEET_FACT` et `INVOICE_FACT`
+    - [x] Passage de `MODULE_DIM` vers une historisation de type 2 sans recréation de la table
+    - [x] Validation de l’historisation : une modification du budget génère désormais une nouvelle version au lieu d’écraser la précédente
+    - [x] Ajout de la ligne Inconnu manquante dans les procédures de chargement de `USER_DIM` et `PROJECT_DIM`
+    - [x] Adaptation de la grille de tests aux noms définitifs des tables
+    - [x] Validation des six dimensions et quatre tables de faits : absence de doublons, absence de lignes orphelines et conformité de la réconciliation des mesures
+    - [x] Développement d’un notebook permettant de comparer les données entre la couche Silver et la zone inbound
+    - [x] Identification et correction des écarts de données par reconstruction complète des tables concernées
+    - [x] Validation du fonctionnement de bout en bout dans l’environnement de développement
+
+### Décisions et ajustements
+
+!!! info "Décisions"
+
+    - Ajouter l’identifiant de ligne à la clé de `TIMESHEET_FACT` et `INVOICE_FACT`, le grain initialement défini ne garantissant pas l’unicité des enregistrements.
+    - Utiliser une historisation de type 2 pour `MODULE_DIM` afin de conserver l’évolution du budget dans le temps.
+    - Utiliser temporairement uniquement la version courante de `MODULE_DIM` lors de la résolution des clés de substitution, en attendant de confirmer si les faits doivent être rattachés à la version historiquement valide à leur date.
+    - Documenter et communiquer au superviseur les écarts identifiés dans le document de correspondance avant toute modification du modèle prévu.
+
+### Difficultés rencontrées
+
+!!! warning "Difficultés"
+
+    - Le grain initialement prévu pour `TIMESHEET_FACT` n’était pas unique : plusieurs cas existaient où une même personne saisissait plusieurs entrées pour une même tâche à la même date.
+    - Le même problème a été identifié pour `INVOICE_FACT`, certaines factures contenant plusieurs lignes associées au même module.
+    - Plusieurs incohérences supplémentaires ont été relevées dans le document de correspondance, notamment une jointure utilisant une colonne inexistante, une jointure vers une dimension incorrecte et certaines règles de transformation non applicables.
+    - Les tests de réconciliation ont également mis en évidence des écarts importants entre la couche Silver et la zone inbound, liés principalement à des chargements incrémentaux effectués sans chargement initial complet.
+
+### Validation
+
+!!! success "Démonstration et validation des écarts de grain"
+
+    Pour `TIMESHEET_FACT` et `INVOICE_FACT`, les procédures ont d’abord été développées selon le grain défini dans le document de correspondance.
+
+    Les contrôles d’unicité ont permis de démontrer que ce grain n’était pas suffisant pour garantir l’unicité des lignes. Les transactions ont volontairement été laissées en échec afin de conserver une preuve technique du problème.
+
+    Après présentation des résultats au superviseur, le grain des deux tables a été ajusté en ajoutant l’identifiant de ligne à la clé. Les procédures ont ensuite été exécutées et validées avec succès.
+
+
